@@ -15,6 +15,10 @@ class TasksController extends Controller
     public function index()
     {
         $task = Task::all();
+        // //dd(auth()->user()->id);
+        // $id
+        // $task = Task::where('user_id', );
+        // return $task;
         return view('task.index', [
             'tasks'=>$task
 
@@ -43,8 +47,9 @@ class TasksController extends Controller
         $task->title = $request->input('title');
         $task->description = $request->input('description');
         $task->status = $request->input('status');
-        $task->user_id = 1;
+        $task->user_id = auth()->user()->id;
         $task->save();
+
         return redirect('/tasks');
     }
 
