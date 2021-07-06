@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\CreateValidationRequest;
+
 
 class TasksController extends Controller
 {
@@ -14,15 +18,15 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $task = Task::all();
-        // //dd(auth()->user()->id);
-        // $id
-        // $task = Task::where('user_id', );
-        // return $task;
+      if(Auth::check()){
+        $user = auth()->user()->id;
+        $task = Task::all()->where('user_id', $user);
         return view('task.index', [
             'tasks'=>$task
 
         ]);
+    }
+    else return redirect('/login');
     }
 
     /**
@@ -41,8 +45,10 @@ class TasksController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateValidationRequest $request)
     {
+       
+
         $task = new Task;
         $task->title = $request->input('title');
         $task->description = $request->input('description');
@@ -59,9 +65,10 @@ class TasksController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function show(Task $task)
+    public function show($id)
     {
-        //
+        $task = Task::all()->where('id', $id);
+        return view('task.show')->with('tasks', $task);
     }
 
     /**
@@ -86,6 +93,27 @@ class TasksController extends Controller
      */
     public function update(Request $request, $id)
     { 
+        $title = DB::table('tasks')
+        ->select('title')
+        ->where('id','=', $id)
+        ->first();
+        $title= $title->title;
+
+        if($request->input('title')===$title){
+            $request->validate([
+                'description'=>'required',
+                'status'=>'required'
+            ]);
+        }
+       else {
+        $request->validate([
+            'title'=>'required',
+            'description'=>'required',
+            'status'=>'required'
+        ]);
+
+       }
+       
         $car = Task::where('id',$id)->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
@@ -106,4 +134,6 @@ class TasksController extends Controller
         $task->delete();
         return redirect('/tasks');
     }
+
+    
 }

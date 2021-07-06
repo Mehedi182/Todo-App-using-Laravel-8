@@ -19,7 +19,6 @@ Route::get('/', function () {
 
 Route::resource('/tasks', TasksController::class);
 
-
 //Route::get('/home', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Auth::routes();
 
